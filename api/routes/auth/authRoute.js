@@ -2,10 +2,11 @@ const express = require("express");
 const router = express.Router();
 const {
   usernameIsAvailable,
-  eMailIsAvailable,
+  usernameIsExist,
 } = require("../../middleware/authMw");
 const bcrypt = require("bcryptjs");
 const userModel = require("../../models/userModel");
+const { generateToken } = require("../../../utils/generateToken");
 
 router.post(
   "/register",
@@ -26,11 +27,19 @@ router.post(
     }
   }
 );
-router.post("/login", (req, res, next) => {
-  res.status(201).json({ message: "User has been logged in" });
+router.post("/login", usernameIsExist, async (req, res, next) => {
+  try {
+    const token = await generateToken(req.user);
+    res.status(200).json({
+      message: `${req.user.username} geri geldi!`,
+      token: token,
+    });
+  } catch (error) {
+    next(error);
+  }
 });
-router.post("/current", (req, res, next) => {
+/* router.post("/current", (req, res, next) => {
   res.status(201).json({ message: "Current User" });
-});
+}); */
 
 module.exports = router;

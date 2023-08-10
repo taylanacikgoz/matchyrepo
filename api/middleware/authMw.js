@@ -1,12 +1,12 @@
 const userModel = require("../models/userModel");
+const bcrypt = require("bcryptjs");
 
 const usernameIsAvailable = async (req, res, next) => {
   try {
-    let userByUserName = await userModel.filteredUsername({
+    let usernameIsAvailable = await userModel.filteredUsername({
       username: req.body.username,
     });
-    console.log(userByUserName);
-    if (userByUserName !== null) {
+    if (usernameIsAvailable !== null) {
       next({
         status: 422,
         message: "Username has already taken",
@@ -19,4 +19,29 @@ const usernameIsAvailable = async (req, res, next) => {
   }
 };
 
-module.exports = { usernameIsAvailable };
+const usernameIsExist = async (req, res, next) => {
+  try {
+    const userByUserName = await userModel.filteredUsername({
+      username: req.body.username,
+    });
+    console.log(userByUserName);
+    const isValidLogin = userByUserName && userByUserName.length > 0;
+    const PassCheck =
+      userByUserName &&
+      bcrypt.compareSync(req.body.password, userByUserName.password);
+    //console.log(PassCheck);
+    if (!isValidLogin && !PassCheck) {
+      next({
+        status: 401,
+        message: "Geçersiz kriter",
+      });
+    } else {
+      req.user = userByUserName;
+      next();
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = { usernameIsAvailable, usernameIsExist };

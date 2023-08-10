@@ -46,12 +46,12 @@ const usernameIsExist = async (req, res, next) => {
     const userByUserName = await userModel.filteredUsername({
       username: req.body.username,
     });
-    console.log(userByUserName);
+    //console.log(userByUserName);
     const isValidLogin = userByUserName && userByUserName.length > 0;
     const PassCheck =
       userByUserName &&
       bcrypt.compareSync(req.body.password, userByUserName.password);
-    //console.log(PassCheck);
+
     if (!isValidLogin && !PassCheck) {
       next({
         status: 401,

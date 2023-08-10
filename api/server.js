@@ -1,4 +1,6 @@
 const express = require("express");
+const helmet = require("helmet");
+const cors = require("cors");
 const connectDB = require("../data/config/dbConnection");
 
 connectDB();
@@ -8,6 +10,8 @@ const userRoutes = require("./routes/users/userRoute");
 const authRoutes = require("./routes/auth/authRoute");
 
 server.use(express.json());
+server.use(helmet());
+server.use(cors());
 
 server.use("/api/users", userRoutes);
 server.use("/api/auth", authRoutes);

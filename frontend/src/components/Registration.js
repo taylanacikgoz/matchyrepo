@@ -43,20 +43,29 @@ const Registration = () => {
   const [form] = Form.useForm();
 
   let navigate = useNavigate();
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
-    axios.get(`http://localhost:9000/api/users`).then((response) => {
-      console.log(response);
-      setUsers(response.data.allUsers);
-    });
+    if (token) {
+      axios
+        .get(`http://localhost:9000/api/users`, {
+          headers: {
+            Authorization: `${token}`,
+          },
+        })
+        .then((response) => {
+          console.log(response);
+          setUsers(response.data?.allUsers);
+        });
+    }
   }, []);
 
   function handleRegister(values) {
     // Check Username or Email isExist;
-    const isUsernameTaken = users.filter(
+    const isUsernameTaken = users?.filter(
       (item) => item.username === values.username
     );
-    const isEmailTaken = users.filter((item) => item.email === values.email);
+    const isEmailTaken = users?.filter((item) => item.email === values.email);
     if (isUsernameTaken.length > 0) {
       setIsUsernameAvailable("This Username has already taken.");
       setTimeout(() => {
@@ -78,7 +87,7 @@ const Registration = () => {
     axios
       .post("http://localhost:9000/api/auth/register", values)
       .then((response) => {
-        if (response.status === 200) {
+        if (response.status === 201) {
           navigate("/login");
         }
         // Registration is Success

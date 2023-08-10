@@ -2,7 +2,8 @@ const User = require("../../data/schema/userSchema");
 
 const getAllUser = async () => {
   const allUsers = await User.find();
-  return allUsers;
+  const userNames = await allUsers.map((user) => user.username);
+  return userNames;
 };
 
 const filteredUsername = async ({ username }) => {

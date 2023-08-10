@@ -30,15 +30,19 @@ const Login = () => {
 
   function handleRegister(values) {
     axios
-      .post("https://localhost:9000/api/auth/login", values)
+      .post("http://localhost:9000/api/auth/login", values)
       .then((response) => {
-        if (response.status === 200) {
-          navigate("/configuration");
+        //console.log(response.data.token);
+        if (response.data.token) {
+          localStorage.setItem("token", response.data.token);
+          navigate("/");
+        } else {
+          console.log("Token not found");
         }
       })
       .catch((error) => {
         console.error(error);
-        if (error.response && error.response.status === 400) {
+        if (error.response && error.response.status === 401) {
           // Bad request,password is incorrect
           setCheckInputMessage(
             "Please Check Your Information and try again..."
@@ -48,7 +52,9 @@ const Login = () => {
           }, 3000);
         } else {
           // to Other errors
-          setCheckInputMessage("An error occurred. Please try again later.");
+          setCheckInputMessage(
+            "An error occurred in server. Please try again later."
+          );
         }
       });
   }
@@ -68,7 +74,7 @@ const Login = () => {
         scrollToFirstError
       >
         <Form.Item
-          name="Username"
+          name="username"
           label="Username"
           rules={[
             {
@@ -84,7 +90,7 @@ const Login = () => {
           <Input />
         </Form.Item>
         <Form.Item
-          name="Password"
+          name="password"
           label="Password"
           rules={[
             {

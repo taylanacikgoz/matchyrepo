@@ -1,5 +1,27 @@
 const userModel = require("../models/userModel");
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const { JWT_SECRET } = require("../../secrets/index");
+
+const restricted = async (req, res, next) => {
+  try {
+    const token = req.headers.authorization;
+    if (token) {
+      jwt.verify(token, JWT_SECRET, (err, decodedJWT) => {
+        if (err) {
+          res.status(401).json({ message: "Invalid token" });
+        } else {
+          req.decodeToken = decodedJWT;
+          next();
+        }
+      });
+    } else {
+      res.status(401).json({ message: "You have to have a token" });
+    }
+  } catch (error) {
+    next(error);
+  }
+};
 
 const usernameIsAvailable = async (req, res, next) => {
   try {
@@ -33,7 +55,7 @@ const usernameIsExist = async (req, res, next) => {
     if (!isValidLogin && !PassCheck) {
       next({
         status: 401,
-        message: "Geçersiz kriter",
+        message: "Check your credentials",
       });
     } else {
       req.user = userByUserName;
@@ -44,4 +66,4 @@ const usernameIsExist = async (req, res, next) => {
   }
 };
 
-module.exports = { usernameIsAvailable, usernameIsExist };
+module.exports = { restricted, usernameIsAvailable, usernameIsExist };
